@@ -1,0 +1,6 @@
+opencv-python==4.9.0.80
+xlrd==2.0.1
+pandas==2.2.2
+openpyxl==3.1.2
+numpy==1.26.4
+Pillow==9.0.1
