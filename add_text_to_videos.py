@@ -8,6 +8,7 @@ import datetime
 import pathlib
 import threading
 import random
+import platform
 
 # Load the font
 FONT_SIZE = 50
@@ -73,6 +74,8 @@ def draw_box(draw, text_position, list_text, output_video_size):
 def add_text_to_video(url, text):
   global THREAD_FREE, THREAD_COUNTER
   print(">>> Inserting '" + text +"' to: " + url + " ...")
+  if platform.system() == "Windows":
+    url = pathlib.PureWindowsPath(url)
   video_capture = cv2.VideoCapture(url)
 
   # Get video properties
@@ -90,8 +93,10 @@ def add_text_to_video(url, text):
   fourcc = cv2.VideoWriter_fourcc(*'mp4v')
   output_video_size = (frame_width, frame_height)
   output_video_name = url.split("/").pop()
-  output_video_path = OUTPUT_FOLDER + output_video_name
-  output_video = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+  output_video_path = pathlib.Path(OUTPUT_FOLDER).joinpath(pathlib.Path(output_video_name))
+  if platform.system() == "Windows":
+    output_video_path = pathlib.PureWindowsPath(output_video_path)
+  output_video = cv2.VideoWriter(str(output_video_path), fourcc, fps, (frame_width, frame_height))
 
   (text_width, text_height) = get_input_text_size(text)
   input_list_text = get_list_text(text, frame_width)
