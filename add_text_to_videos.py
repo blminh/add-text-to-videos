@@ -27,7 +27,10 @@ THREAD_FREE = True
 pathlib.Path(OUTPUT_FOLDER).mkdir(parents=True, exist_ok=True)
 
 def get_input_text_size(text):
-  (text_width, text_height) = FONT_FACE.getsize(text)
+  # (text_width, text_height) = FONT_FACE.getsize(text)
+  left, top, right, bottom = FONT_FACE.getbbox(text)
+  text_width = right - left
+  text_height = bottom - top
   return (text_width, text_height)
 
 def split_list(input_list, line_number):
@@ -74,9 +77,7 @@ def draw_box(draw, text_position, list_text, output_video_size):
 def add_text_to_video(url, text):
   global THREAD_FREE, THREAD_COUNTER
   print(">>> Inserting '" + text +"' to: " + url + " ...")
-  if platform.system() == "Windows":
-    url = pathlib.PureWindowsPath(url)
-  video_capture = cv2.VideoCapture(url)
+  video_capture = cv2.VideoCapture(str(url))
 
   # Get video properties
   fps = video_capture.get(cv2.CAP_PROP_FPS)
@@ -92,10 +93,15 @@ def add_text_to_video(url, text):
   # Create VideoWriter object to save the output
   fourcc = cv2.VideoWriter_fourcc(*'mp4v')
   output_video_size = (frame_width, frame_height)
-  output_video_name = url.split("/").pop()
-  output_video_path = pathlib.Path(OUTPUT_FOLDER).joinpath(pathlib.Path(output_video_name))
+  
+  
   if platform.system() == "Windows":
-    output_video_path = pathlib.PureWindowsPath(output_video_path)
+    output_video_name = url.split("\\").pop()
+    output_video_path = pathlib.PureWindowsPath(OUTPUT_FOLDER).joinpath(pathlib.Path(output_video_name))
+  else:
+    output_video_name = url.split("/").pop()
+    output_video_path = pathlib.Path(OUTPUT_FOLDER).joinpath(pathlib.Path(output_video_name))
+  
   output_video = cv2.VideoWriter(str(output_video_path), fourcc, fps, (frame_width, frame_height))
 
   (text_width, text_height) = get_input_text_size(text)
